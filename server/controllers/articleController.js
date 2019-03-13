@@ -40,15 +40,16 @@ class articleController {
     }
 
     static displayListArticleByUserId (req,res) {
+        console.log("masuk ke display article", req.loggedInUser)
         User.find({
             articleuserid: req.loggedInUser._id
         })
         .then(articlelists => {
-            let listArticle = articlelists
-
+            console.log("User ditemukan, hasil pencarian user: ", articlelists)
             //get all articles
             Article.find({})
             .then(lists => {
+                console.log("Hasil pencarian artikel: ", lists )
                 let completedArticle = 0
                 let incompleteArticle = 0
                 lists.forEach(article => {
@@ -60,7 +61,7 @@ class articleController {
                 })
                 res.status(200).json({
                     msg: `List Article by user ${req.loggedInUser.email}`,
-                    data: listArticle,
+                    data: lists,
                     globalcomplete: completedArticle,
                     globalincomplete: incompleteArticle
                 })
@@ -97,11 +98,13 @@ class articleController {
     }
 
     static editIndividualArticle (req,res) {
+        console.log("Masuk ke edit artikel", req.body, req.loggedInUser, req.params.id)
         Article.findOne({
-            _id: req.params.id
+            "_id": req.params.id
         })
         .then (article => {
-            let editDate = checkDate(req.body.updatedAt)
+            // let editDate = checkDate(req.body.updatedAt)
+            console.log("Hasil pencarian artiekl: ", article)
             Article.findOneAndUpdate({
                 _id: req.params.id
             }, {
@@ -127,7 +130,9 @@ class articleController {
         .catch(error=>{
             res.status(500).json({
                 msg: 'ERROR in finding your article to edit ',error
+                
             }) 
+            console.log(error)
         })
     }
 
@@ -137,17 +142,20 @@ class articleController {
             _id: req.params.id
         })
         .then(articlelist =>{
-            Article.findOneAndUpdate({
-                _id:req.params.id
+            console.log("Artikel yang akan diremove dan delete:", articlelist, req.loggedInUser)
+            User.findOneAndUpdate({
+                _id:articlelist.articleuserid
             }, {$pull: {listsArticle: articlelist._id}})
-            .then(articletodelete => {
+            .then(articleToDelete => {
+                console.log("Hasil update user untuk delete artikel:", articleToDelete)
                 Article.findOneAndDelete({
                     _id: req.params.id
                 })
-                .then(articledelete => {
+                .then(articleDelete => {
+                    console.log("Hasil delete: ", articleDelete)
                     res.status(200).json({
                         msg: 'Article has been deleted',
-                        data: articletodelete
+                        data: articleDelete
                     })
                 })
                 .catch (error => {
