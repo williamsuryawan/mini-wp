@@ -10,7 +10,7 @@ const port = 3000
 
 const app = express()
 app.use(cors())
-mongoose.connect('mongodb://localhost:27017/mini-wp', {useNewUrlParser: true})
+mongoose.connect('mongodb+srv://williamsuryawan:1234@cluster0-dlbfv.mongodb.net/test?retryWrites=true', {useNewUrlParser: true})
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
