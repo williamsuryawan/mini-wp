@@ -6,7 +6,7 @@ const mongoose = require ('mongoose')
 const indexRouter = require('./routes/index')
 const userRouter = require('./routes/users')
 const articleRouter = require('./routes/articles')
-const port = 4000
+const port = 3000
 
 const app = express()
 app.use(cors())

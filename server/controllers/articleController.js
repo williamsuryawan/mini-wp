@@ -1,6 +1,6 @@
 const User = require('../models/user')
 const Article = require('../models/article')
-const checkDate = require('../helpers/checkarticleDate')
+// const checkDate = require('../helpers/checkarticleDate')
 
 class articleController {
     //create article
