@@ -2,28 +2,42 @@ const User = require('../models/user')
 const Article = require('../models/article')
 // const checkDate = require('../helpers/checkarticleDate')
 
+const Multer = require('multer')
+var upload = Multer({})
+
 class articleController {
     //create article
     static create(req,res) {
-        console.log("Cek Input", req.body)
+        console.log("Cek Input sebelum multer", req.body, req.file)
+        
+            console.log('ini req.filenya setelah multer', req.file)
+            console.log("masuk sini upload post artikel", req.body)
+                let obj = {
+                link: req.file.cloudStoragePublicUrl,
+                title: req.body.title,
+                text: req.body.text,
+                status: req.body.status,
+                articleuserid: req.loggedInUser._id
+                }
 
-        Article.create({
-            title: req.body.title,
-            content: req.body.content,
-            status: req.body.status,
-            articleuserid: req.body.userId
-        })
-            .then(articlelist => {
-                let newArticle = articlelist
+            Article.create(obj)
+                .then(articlelist => {
+                    let newArticle = articlelist
 
-                User.findOneAndUpdate({
-                    _id: articlelist.articleuserid
-                }, {$push: {listsArticle: articlelist._id}})
-                .then(user => {
-                    console.log("Hasil push new todo:", user)
-                    res.status(200).json({
-                        msg: 'Articlelist successfully created',
-                        data: newArticle
+                    User.findOneAndUpdate({
+                        _id: articlelist.articleuserid
+                    }, {$push: {listsArticle: articlelist._id}})
+                    .then(user => {
+                        console.log("Hasil push new article:", user)
+                        res.status(200).json({
+                            msg: 'Articlelist successfully created',
+                            data: newArticle
+                        })
+                    })
+                    .catch(error => {
+                        res.status(500).json({
+                            msg: 'ERROR Create Todolist: ',error
+                        })
                     })
                 })
                 .catch(error => {
@@ -31,23 +45,23 @@ class articleController {
                         msg: 'ERROR Create Todolist: ',error
                     })
                 })
-            })
-            .catch(error => {
-                res.status(500).json({
-                    msg: 'ERROR Create Todolist: ',error
-                })
-            })
+        
+        
     }
 
     static displayListArticleByUserId (req,res) {
         console.log("masuk ke display article", req.loggedInUser)
         User.find({
-            articleuserid: req.loggedInUser._id
+            _id: req.loggedInUser._id
         })
-        .then(articlelists => {
-            console.log("User ditemukan, hasil pencarian user: ", articlelists)
-            //get all articles
-            Article.find({})
+        .populate('listsArticle')
+        .then(user => {
+            console.log("User ditemukan, hasil pencarian user: ", user)
+            console.log("User ditemukan, hasil pencarian artikel: ", user.listsArticle)
+            //get all articles by user
+            Article.find({
+                articleuserid: req.loggedInUser._id
+            })
             .then(lists => {
                 console.log("Hasil pencarian artikel: ", lists )
                 let completedArticle = 0
@@ -104,17 +118,17 @@ class articleController {
         })
         .then (article => {
             // let editDate = checkDate(req.body.updatedAt)
-            console.log("Hasil pencarian artiekl: ", article)
+            console.log("Hasil pencarian artikel: ", article)
             Article.findOneAndUpdate({
                 _id: req.params.id
             }, {
                 title: req.body.title,
-                content: req.body.content,
+                text: req.body.text,
                 status: req.body.status,
                 articleuserid: req.loggedInUser._id
             }, {new: true})
             .then(articleupdate => {
-                console.log("Hasil Edit", )
+                console.log("Hasil Edit", articleupdate)
                 res.status(200).json ({
                     msg: "Article has been updated",
                     data: articleupdate

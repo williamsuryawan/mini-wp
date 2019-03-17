@@ -3,7 +3,9 @@ const Schema = mongoose.Schema;
 const hashPassword = require('../helpers/hashPassword');
 
 const userSchema = new Schema({
-  email: {
+  name: {
+    type: String
+  },email: {
     type: String /*,
     match: [/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, `Please fill valid email address`],
     validate: {
@@ -30,7 +32,7 @@ const userSchema = new Schema({
   },
   listsArticle: [{
     type: Schema.Types.ObjectId,
-    ref: 'Article'}]
+    ref: 'Articlelist'}]
 });
 
 userSchema.pre('save', function (next) {
